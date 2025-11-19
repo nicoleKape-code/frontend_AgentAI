@@ -1,15 +1,12 @@
 "use client";
-import { ReactLenis } from "lenis/dist/lenis-react";
+import { ReactLenis } from "lenis/react";
 import {
   motion,
   useMotionTemplate,
   useMotionValue,
-  useScroll,
-  useTransform,
   animate,
 } from "framer-motion";
-import { FiArrowLeft, FiArrowRight, FiMapPin } from "react-icons/fi";
-import { useRef } from "react";
+import { FiArrowLeft } from "react-icons/fi";
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -54,8 +51,6 @@ const Nav = () => {
   );
 };
 
-const SECTION_HEIGHT = 1500;
-
 
 const Login = () => {
     const color = useMotionValue(COLORS_TOP[0]);
@@ -68,7 +63,6 @@ const Login = () => {
         });
       }, [color]);
 
-    const backgroundImage = useMotionTemplate`radial-gradient(125% 125% at 50% 0%, #020617 50%, ${color})`;
     const border = useMotionTemplate`1px solid ${color}`;
     const boxShadow = useMotionTemplate`0px 4px 24px ${color}`;
     const backgroundColor = useMotionTemplate`${color}`;

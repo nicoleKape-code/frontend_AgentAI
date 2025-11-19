@@ -1,5 +1,5 @@
 "use client";
-import { ReactLenis } from "lenis/dist/lenis-react";
+import { ReactLenis } from "lenis/react";
 import {
   motion,
   useMotionTemplate,
@@ -8,7 +8,7 @@ import {
   useTransform,
   animate,
 } from "framer-motion";
-import { FiArrowLeft, FiArrowRight, FiMapPin } from "react-icons/fi";
+import { FiArrowLeft } from "react-icons/fi";
 import { useRef } from "react";
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -66,7 +66,7 @@ const Hero = () => {
     >
       <CenterImage />
       <ParallaxImages />
-      <div className="absolute bottom-0 left-0 right-0 h-96 bg-gradient-to-b from-zinc-950/0 to-zinc-950" />
+      <div className="absolute bottom-0 left-0 right-0 h-96 bg-linear-to-b from-zinc-950/0 to-zinc-950" />
     </div>
   );
 };
@@ -138,7 +138,13 @@ const ParallaxImages = () => {
   );
 };
 
-const ParallaxImg = ({ className, alt, src, start, end }) => {
+const ParallaxImg = ({ className, alt, src, start, end }: {
+  className?: string;
+  alt: string;
+  src: string;
+  start: number;
+  end: number;
+}) => {
   const ref = useRef(null);
 
   const { scrollYProgress } = useScroll({
