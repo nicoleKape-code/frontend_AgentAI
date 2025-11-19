@@ -12,6 +12,7 @@ import { FiArrowLeft, FiArrowRight, FiMapPin } from "react-icons/fi";
 import { useRef } from "react";
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 
 const COLORS_TOP = ["#13FFAA", "#1E67C6", "#CE84CF", "#DD335C"];
@@ -107,6 +108,7 @@ const Login = () => {
                         focus:outline-none"
             />
         </motion.div>
+        <Link href="/Agente">
         <motion.div
             style={{ backgroundColor, boxShadow }}
             className="px-4 py-2 w-[450px] h-[45px] rounded-full font-medium text-white
@@ -115,6 +117,8 @@ const Login = () => {
             >
                 Submit
         </motion.div>
+        </Link>
+
         </div>
       </section>
     );
