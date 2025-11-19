@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { BubbleBackground } from "@/components/ui/BubbleBackground";
 import { ConversationsSidebar } from "@/components/chat/ConversationsSidebar";
+import { AddressForm, type AddressData } from "@/components/chat/AddressForm";
 import { cn } from "@/lib/utils";
 
 // Interfaces para componentes UI
@@ -239,6 +240,24 @@ export default function AgentePage() {
     setSidebarLayout({ isOpen, isLargeScreen });
   }, []);
 
+  // ==================== MANEJO DE FORMULARIOS ESPECIALES ====================
+
+  const handleAddressSubmit = useCallback(async (addressData: AddressData) => {
+    const addressMessage = `Mi domicilio fiscal es:
+Calle: ${addressData.street}${addressData.exteriorNumber ? ` #${addressData.exteriorNumber}` : ''}${addressData.interiorNumber ? ` Int. ${addressData.interiorNumber}` : ''}
+Colonia: ${addressData.neighborhood}
+Código Postal: ${addressData.postalCode}
+Municipio: ${addressData.municipality}
+Estado: ${addressData.state}`;
+
+    try {
+      await chat.sendMessage(addressMessage);
+    } catch (error) {
+      console.error('Error al enviar dirección:', error);
+    }
+  }, [chat]);
+
+
   // Loading state inicial
   if (isInitializing) {
     return (
@@ -334,7 +353,24 @@ export default function AgentePage() {
                     name={message.role === "user" ? "Usuario" : "Agente SAT"}
                   />
                   <MessageContent>
-                    <Response>{message.content}</Response>
+                    {message.role === "user" ? (
+                      <Response>{message.content}</Response>
+                    ) : message.showAddressForm || message.messageType === 'address_form' ? (
+                      <div className="space-y-4">
+                        {/* Mostrar el mensaje del agente primero con glassmorphism */}
+                        <div className="p-4 bg-black/30 backdrop-blur-md border border-white/20 rounded-2xl shadow-lg">
+                          <div className="text-white">
+                            <Response>{message.content}</Response>
+                          </div>
+                        </div>
+                        {/* Luego mostrar el formulario con glassmorphism */}
+                        <div className="bg-black/30 backdrop-blur-md border border-white/20 rounded-2xl shadow-lg">
+                          <AddressForm onAddressSubmit={handleAddressSubmit} />
+                        </div>
+                      </div>
+                    ) : (
+                      <Response>{message.content}</Response>
+                    )}
                   </MessageContent>
                 </Message>
               ))}

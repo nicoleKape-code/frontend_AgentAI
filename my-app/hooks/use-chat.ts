@@ -236,13 +236,15 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
       },
 
       onFinalResponse: (response, data) => {
-        log('Final response', { responseLength: response.length })
+        log('Final response', { responseLength: response.length, showAddressForm: data.show_address_form })
         
-        // Actualizar mensaje con respuesta final
+        // Actualizar mensaje con respuesta final y formulario especial si es necesario
         setMessages(prev => prev.map(msg => 
           msg.id === tempAssistantMessage.id ? {
             ...msg,
-            content: response
+            content: response,
+            showAddressForm: data.show_address_form || false,
+            messageType: data.show_address_form ? 'address_form' as const : undefined
           } : msg
         ))
 

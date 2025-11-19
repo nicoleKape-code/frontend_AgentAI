@@ -34,6 +34,8 @@ export interface MessageResponse {
   role: 'user' | 'assistant'
   content: string
   created_at: string
+  showAddressForm?: boolean
+  messageType?: 'normal' | 'address_form' | 'document_upload'
 }
 
 export interface ConversationResponse {

@@ -195,6 +195,7 @@ export interface StreamCallbacks {
     conversation_id: string
     session_id: string
     title_update_result?: string
+    show_address_form?: boolean
   }) => void
   
   onError?: (error: ApiError) => void
