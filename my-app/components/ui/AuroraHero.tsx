@@ -75,6 +75,7 @@ export const AuroraHero = () => {
             <p className="my-6 max-w-xl text-center text-base leading-relaxed md:text-lg md:leading-relaxed">
             Consulta trámites oficiales fácilmente, de forma segura y desde un solo lugar. Ahorra tiempo y evita filas con nuestro sistema automatizado.
             </p>
+            <Link href="/Agente">
             <motion.button
             style={{    
                 border,
@@ -91,6 +92,9 @@ export const AuroraHero = () => {
             Explorar
             <FiArrowRight className="transition-transform group-hover:-rotate-45 group-active:-rotate-12" />
             </motion.button>
+
+            </Link>
+
       </div>
     </motion.section>
   );
