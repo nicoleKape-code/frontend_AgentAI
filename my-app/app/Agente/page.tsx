@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { TramiteType } from "@/types/api";
+import { TramiteType, ConversationResponse } from "@/types/api";
 import { useChat } from "@/hooks/use-chat";
 import { useTramites } from "@/hooks/use-tramites";
+import { useConversations } from "@/hooks/use-conversations";
 import {
   Message,
   MessageContent,
@@ -28,6 +29,7 @@ import {
   ArrowUpIcon,
 } from "lucide-react";
 import { BubbleBackground } from "@/components/ui/BubbleBackground";
+import { ConversationsSidebar } from "@/components/chat/ConversationsSidebar";
 import { cn } from "@/lib/utils";
 
 // Interfaces para componentes UI
@@ -109,7 +111,9 @@ const AlertDescription = ({
 export default function AgentePage() {
   const [input, setInput] = useState("");
   const [showSidebar, setShowSidebar] = useState(false);
+  const [showConversationsSidebar, setShowConversationsSidebar] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [sidebarLayout, setSidebarLayout] = useState({ isOpen: false, isLargeScreen: false });
 
   // Ref para el scroll automático
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -130,6 +134,14 @@ export default function AgentePage() {
     autoLoadSession: false,
     onError: (error) => {
       console.error("Error en trámites:", error);
+    },
+  });
+
+  // Hook para manejo de conversaciones
+  const conversations = useConversations({
+    debug: true,
+    onError: (error) => {
+      console.error("Error en conversaciones:", error);
     },
   });
 
@@ -190,6 +202,43 @@ export default function AgentePage() {
     [input, chat]
   );
 
+  // ==================== MANEJO DE CONVERSACIONES ====================
+
+  const handleSelectConversation = useCallback(async (conversation: ConversationResponse) => {
+    try {
+      await chat.loadConversation(conversation.id);
+      setShowConversationsSidebar(false);
+    } catch (error) {
+      console.error("Error al cargar conversación:", error);
+    }
+  }, [chat]);
+
+  const handleNewConversation = useCallback(async () => {
+    try {
+      await chat.reset();
+      await conversations.createConversation();
+      setShowConversationsSidebar(false);
+    } catch (error) {
+      console.error("Error al crear nueva conversación:", error);
+    }
+  }, [chat, conversations]);
+
+  const handleDeleteConversation = useCallback(async (conversationId: string) => {
+    try {
+      await conversations.deleteConversation(conversationId);
+      // Si era la conversación activa, resetear el chat
+      if (chat.conversationId === conversationId) {
+        chat.reset();
+      }
+    } catch (error) {
+      console.error("Error al eliminar conversación:", error);
+    }
+  }, [conversations, chat]);
+
+  const handleSidebarLayoutChange = useCallback((isOpen: boolean, isLargeScreen: boolean) => {
+    setSidebarLayout({ isOpen, isLargeScreen });
+  }, []);
+
   // Loading state inicial
   if (isInitializing) {
     return (
@@ -209,6 +258,14 @@ export default function AgentePage() {
     <main className="relative h-screen w-full flex flex-col">
       {/* Background - siempre visible */}
       <BubbleBackground interactive={true} className="fixed inset-0 z-0" />
+      
+      {/* Content wrapper que se ajusta al sidebar */}
+      <div 
+        className={cn(
+          "relative flex flex-col h-full transition-all duration-300 ease-in-out",
+          sidebarLayout.isOpen && sidebarLayout.isLargeScreen && "ml-80"
+        )}
+      >
 
       {chat.messages.length === 0 ? (
         /* Estado inicial - Input centrado */
@@ -364,6 +421,21 @@ export default function AgentePage() {
         tramites={tramites}
         isVisible={showSidebar}
         onClose={() => setShowSidebar(false)}
+      />
+
+      </div>
+
+      {/* Sidebar de conversaciones */}
+      <ConversationsSidebar
+        conversations={conversations.conversations}
+        activeConversationId={chat.conversationId || undefined}
+        onSelectConversation={handleSelectConversation}
+        onNewConversation={handleNewConversation}
+        onDeleteConversation={handleDeleteConversation}
+        isLoading={conversations.isLoading}
+        open={showConversationsSidebar}
+        onOpenChange={setShowConversationsSidebar}
+        onLayoutChange={handleSidebarLayoutChange}
       />
     </main>
   );
