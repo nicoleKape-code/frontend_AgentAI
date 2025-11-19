@@ -260,7 +260,7 @@ export default function AgentePage() {
         /* Estado con mensajes - Layout normal */
         <>
           {/* Contenedor de mensajes scrollable */}
-          <div className="flex-1 overflow-y-auto p-4 relative z-10">
+          <div className="flex-1 overflow-y-auto p-4 relative z-10 scrollbar-aurora">
             <div className="max-w-4xl mx-auto space-y-4">
               {chat.messages.map((message) => (
                 <Message
