@@ -78,7 +78,6 @@ export function ChatProvider({ children, userId = "default-user" }: ChatProvider
   // Custom hooks
   const { isLoading: isStreamingLoading, startStream } = useStreaming((fn) => fn());
   const { 
-    sessionId,
     handleCreateNewSession,
     handleSessionSwitch
   } = useSession();
@@ -203,7 +202,6 @@ export function ChatProvider({ children, userId = "default-user" }: ChatProvider
     conversationId, 
     error, 
     userId,
-    sessionId,
     startStream,
     handleCreateNewSession,
     handleSessionSwitch,
@@ -282,7 +280,6 @@ export function ChatProvider({ children, userId = "default-user" }: ChatProvider
     isLoadingConversations,
     conversationId,
     userId,
-    sessionId,
     handleCreateNewSession,
     chatAPI
   ]);

@@ -10,9 +10,10 @@ import {
 } from "framer-motion";
 import { FiArrowLeft } from "react-icons/fi";
 import { useRef } from "react";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { createClient } from '@/lib/supabase/client';
 
 
 const COLORS_TOP = ["#13FFAA", "#1E67C6", "#CE84CF", "#DD335C"];
@@ -170,6 +171,15 @@ const ParallaxImg = ({ className, alt, src, start, end }: {
 };
 
 const Login = () => {
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [acceptTerms, setAcceptTerms] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const router = useRouter();
+
     const color = useMotionValue(COLORS_TOP[0]);
     useEffect(() => {
         animate(color, COLORS_TOP, {
@@ -179,6 +189,37 @@ const Login = () => {
           repeatType: "mirror",
         });
       }, [color]);
+
+    const handleSignUp = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!acceptTerms) {
+            setError('You must accept the terms and conditions');
+            return;
+        }
+        
+        const supabase = createClient();
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const { error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        first_name: firstName,
+                        last_name: lastName,
+                    }
+                }
+            });
+            if (error) throw error;
+            router.push('/auth/sign-up-success');
+        } catch (error: unknown) {
+            setError(error instanceof Error ? error.message : 'An error occurred');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const border = useMotionTemplate`1px solid ${color}`;
     const boxShadow = useMotionTemplate`0px 4px 24px ${color}`;
@@ -194,16 +235,19 @@ const Login = () => {
           transition={{ ease: "easeInOut", duration: 0.75 }}
           className="mb-20 text-7xl font-black uppercase text-zinc-50 text-center"
         >
-          SIGNIN
+          SIGNUP
         </motion.h1>
-        <div className ="flex flex-col items-center space-y-6">
+        <form onSubmit={handleSignUp} className="flex flex-col items-center space-y-6">
         <motion.div
             style={{ border, boxShadow }}
             className="p-[2px] rounded-md w-[450px] mx-auto mt-1"
             >
             <input
                 type="text"
-                placeholder="Name"
+                placeholder="First Name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
                 className="w-full rounded-md bg-black/30 text-white px-3 py-2 backdrop-blur-sm 
                         focus:outline-none"
             />
@@ -215,6 +259,9 @@ const Login = () => {
             <input
                 type="text"
                 placeholder="Last Name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
                 className="w-full rounded-md bg-black/30 text-white px-3 py-2 backdrop-blur-sm 
                         focus:outline-none"
             />
@@ -227,6 +274,9 @@ const Login = () => {
             <input
                 type="email"
                 placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
                 className="w-full rounded-md bg-black/30 text-white px-3 py-2 backdrop-blur-sm 
                         focus:outline-none"
             />
@@ -238,6 +288,9 @@ const Login = () => {
             <input
                 type="password"
                 placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
                 className="w-full rounded-md bg-black/30 backdrop-blur-sm cursor-pointer hover:bg-black/50 transition text-white px-3 py-2  
                         focus:outline-none"
             />
@@ -246,23 +299,33 @@ const Login = () => {
             <label className="flex items-center gap-3 text-white cursor-pointer">
                 <input
                 type="checkbox"
+                checked={acceptTerms}
+                onChange={(e) => setAcceptTerms(e.target.checked)}
                 className="w-4 h-4 cursor-pointer"
                 />
                 Aceptar términos y condiciones
             </label>
         </div>
-        <Link href="/Agente">
-        <motion.div
+        {error && (
+            <p className="text-red-400 text-sm w-[450px] text-center">{error}</p>
+        )}
+        <motion.button
+            type="submit"
+            disabled={isLoading}
             style={{ backgroundColor, boxShadow }}
             className="px-4 py-2 w-[450px] h-[45px] rounded-full font-medium text-white
              bg-black/30 backdrop-blur-sm cursor-pointer hover:bg-black/50 transition
-             flex items-center justify-center mt-9"
+             flex items-center justify-center mt-9 disabled:opacity-50"
             >
-                Submit
-        </motion.div>
-        </Link>
-
+                {isLoading ? 'Creating account...' : 'Submit'}
+        </motion.button>
+        <div className="text-white text-sm">
+            Already have an account?{' '}
+            <Link href="/Login" className="underline text-blue-400">
+                Login
+            </Link>
         </div>
+        </form>
       </section>
     );
   };

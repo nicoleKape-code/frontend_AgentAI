@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { ChatProvider, useChatContext } from "@/contexts/ChatProvider";
 import {
   Message,
@@ -279,12 +281,50 @@ function ChatPageContent() {
   );
 }
 
+// Protected Route Component
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        router.push('/Login');
+        return;
+      }
+      
+      setIsAuthenticated(true);
+    };
+
+    checkAuth();
+  }, [router]);
+
+  // Show loading while checking authentication
+  if (isAuthenticated === null) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center bg-gray-950">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+          <p className="text-white">Verifying authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return isAuthenticated ? <>{children}</> : null;
+}
+
 // Main component with provider wrapper
 export default function ChatPage() {
   return (
-    <ChatProvider>
-      <ChatPageContent />
-    </ChatProvider>
+    <ProtectedRoute>
+      <ChatProvider>
+        <ChatPageContent />
+      </ChatProvider>
+    </ProtectedRoute>
   );
 }
 

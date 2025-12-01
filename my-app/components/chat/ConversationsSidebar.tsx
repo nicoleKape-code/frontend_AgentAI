@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, MessageSquare, Trash2, X } from "lucide-react";
+import { Plus, MessageSquare, Trash2, X, ChevronUp, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 // Standard conversation type
 type ConversationResponse = {
   id: string;
@@ -36,6 +38,9 @@ export function ConversationsSidebar({
 }: ConversationsSidebarProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const router = useRouter();
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
   const setOpen = onOpenChange || setInternalOpen;
 
@@ -48,6 +53,38 @@ export function ConversationsSidebar({
     window.addEventListener("resize", checkScreenSize);
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
+
+  // Get user information
+  useEffect(() => {
+    const getUser = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    
+    getUser();
+  }, []);
+
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push('/');
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showProfileDropdown && event.target) {
+        const target = event.target as Element;
+        if (!target.closest('.profile-dropdown-container')) {
+          setShowProfileDropdown(false);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showProfileDropdown]);
 
   // Notify parent of layout changes
   useEffect(() => {
@@ -195,6 +232,61 @@ export function ConversationsSidebar({
               ))}
             </div>
           )}
+        </div>
+
+        {/* Profile Section */}
+        <div className="px-6 pb-6 pt-4 border-t border-white/10">
+          <div className="relative profile-dropdown-container">
+            {/* Dropdown Menu */}
+            {showProfileDropdown && (
+              <div className="absolute bottom-full left-0 right-0 mb-2 bg-black/40 backdrop-blur-md border border-white/20 rounded-xl shadow-xl z-50">
+                <div className="p-2">
+                  <Button
+                    variant="ghost"
+                    onClick={handleLogout}
+                    className="w-full justify-start text-white/80 hover:text-red-400 hover:bg-red-500/20 rounded-lg transition-colors text-sm"
+                  >
+                    <LogOut className="h-4 w-4 mr-3" />
+                    Logout
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Profile Button */}
+            <Button
+              variant="ghost"
+              onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+              className={cn(
+                "w-full justify-between p-3 h-auto bg-black/20 backdrop-blur-sm border border-white/10",
+                "hover:bg-black/40 hover:border-white/20 rounded-xl transition-all",
+                showProfileDropdown && "bg-white/10 border-white/30"
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                  <User className="h-4 w-4 text-white" />
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="text-white text-sm font-medium">
+                    {user?.user_metadata?.first_name ? 
+                      `${user.user_metadata.first_name} ${user.user_metadata.last_name || ''}`.trim() :
+                      user?.email?.split('@')[0] || 'User'
+                    }
+                  </span>
+                  <span className="text-white/60 text-xs">
+                    {user?.email || 'user@example.com'}
+                  </span>
+                </div>
+              </div>
+              <ChevronUp 
+                className={cn(
+                  "h-4 w-4 text-white/60 transition-transform",
+                  showProfileDropdown && "rotate-180"
+                )} 
+              />
+            </Button>
+          </div>
         </div>
       </div>
     </>

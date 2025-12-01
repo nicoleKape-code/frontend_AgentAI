@@ -283,7 +283,7 @@ class JSONFragmentProcessor {
           try {
             const fragment: AgentEngineFragment = JSON.parse(line);
             this.processCompleteFragment(fragment);
-          } catch (error) {
+          } catch {
             console.log(
               "📝 [JSON PROCESSOR] Skipping non-JSON line in finalize:",
               line.substring(0, 100) + "..."

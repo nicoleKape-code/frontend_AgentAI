@@ -51,7 +51,7 @@ export const AuroraHero = () => {
             </div>
               {/* RIGHT */}
               <div className="flex items-center gap-4">
-            <Link href="/Signin">
+            <Link href="/Signup">
                 <motion.div
                 style={{ backgroundColor, boxShadow}}
                 className="px-4 py-2 rounded-md font-medium bg-black/30 backdrop-blur-sm cursor-pointer hover:bg-black/50 transition text-white"
