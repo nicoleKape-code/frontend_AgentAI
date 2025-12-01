@@ -206,7 +206,7 @@ const Login = () => {
                 email,
                 password,
                 options: {
-                    emailRedirectTo: `${window.location.origin}/auth/confirm?next=${encodeURIComponent('/Agente')}`,
+                    emailRedirectTo: `${window.location.origin}/auth/confirm`,
                     data: {
                         first_name: firstName,
                         last_name: lastName,

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { FiArrowRight, FiAlertCircle } from "react-icons/fi";
 import Image from "next/image";
 import {
@@ -12,8 +12,13 @@ import Link from "next/link";
 
 const COLORS_TOP = ["#13FFAA", "#1E67C6", "#CE84CF", "#DD335C"];
 
-export default function Page({ searchParams }: { searchParams: { error?: string } }) {
+export default function Page({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  const [params, setParams] = useState<{ error?: string } | null>(null);
   const color = useMotionValue(COLORS_TOP[0]);
+
+  useEffect(() => {
+    searchParams.then(setParams);
+  }, [searchParams]);
 
   useEffect(() => {
     animate(color, COLORS_TOP, {
@@ -84,8 +89,8 @@ export default function Page({ searchParams }: { searchParams: { error?: string 
           transition={{ delay: 0.4, duration: 0.6 }}
           className="my-6 max-w-xl text-center text-base leading-relaxed md:text-lg md:leading-relaxed"
         >
-          {searchParams?.error ? (
-            <>We encountered an error: <span className="text-red-400 font-mono">{searchParams.error}</span></>
+          {params?.error ? (
+            <>We encountered an error: <span className="text-red-400 font-mono">{params.error}</span></>
           ) : (
             "An unexpected error occurred. Please try again or contact support if the problem persists."
           )}
