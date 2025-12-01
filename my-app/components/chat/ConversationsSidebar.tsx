@@ -4,7 +4,12 @@ import { useState, useEffect } from "react";
 import { Plus, MessageSquare, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { ConversationResponse } from "@/types/api";
+// Standard conversation type
+type ConversationResponse = {
+  id: string;
+  title?: string;
+  updated_at: string;
+};
 
 interface ConversationsSidebarProps {
   conversations: ConversationResponse[];
@@ -104,7 +109,7 @@ export function ConversationsSidebar({
       >
         {/* Header */}
         <div className="p-6 pb-4 flex items-center justify-between">
-          <h2 className="text-white font-semibold text-lg">Conversaciones</h2>
+          <h2 className="text-white font-semibold text-lg">Conversations</h2>
           <Button
             variant="ghost"
             size="icon"
@@ -130,7 +135,7 @@ export function ConversationsSidebar({
             )}
           >
             <Plus className="h-4 w-4 mr-2" />
-            Nueva conversación
+            New Conversation
           </Button>
         </div>
 
@@ -143,8 +148,8 @@ export function ConversationsSidebar({
           ) : conversations.length === 0 ? (
             <div className="text-center py-8 text-white/70">
               <MessageSquare className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p className="text-sm">No hay conversaciones aún</p>
-              <p className="text-xs opacity-70">Crea una nueva para empezar</p>
+              <p className="text-sm">No conversations yet</p>
+              <p className="text-xs opacity-70">Create a new one to start</p>
             </div>
           ) : (
             <div className="space-y-2 pb-6">
@@ -167,7 +172,7 @@ export function ConversationsSidebar({
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <h4 className="text-sm font-medium text-white truncate">
-                        {conversation.title || "Sin título"}
+                        {conversation.title || "Untitled"}
                       </h4>
                       <p className="text-xs text-white/60 mt-1">
                         {formatDate(conversation.updated_at)}

@@ -1,0 +1,16 @@
+/**
+ * Client-safe configuration utilities for Agent Engine
+ *
+ * This module provides configuration functions that can be safely used
+ * in both client and server environments without importing server dependencies.
+ */
+
+/**
+ * Determines if we should use Agent Engine based on environment variables
+ * This is safe to use in client-side code (SSE parser, hooks, etc.)
+ */
+export function shouldUseAgentEngine(): boolean {
+  // For this implementation, we always use Agent Engine
+  // Check for Agent Engine endpoint - this env var should be available on both client and server
+  return Boolean(process.env.AGENT_ENGINE_ENDPOINT);
+}
