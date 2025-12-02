@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useRef, useCallback, useMem
 import { v4 as uuidv4 } from "uuid";
 import { useStreaming } from "@/hooks/useStreaming";
 import { useSession } from "@/hooks/useSession";
+import { createClient } from "@/lib/supabase/client";
 import { Message as BaseMessage } from "@/types";
 
 // Extended message type for UI
@@ -122,6 +123,18 @@ export function ChatProvider({ children, userId = "default-user" }: ChatProvider
     console.log('Website count update:', count);
   }, []);
 
+  // Get JWT token from Supabase session
+  const getJWTToken = useCallback(async (): Promise<string | null> => {
+    try {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      return session?.access_token || null;
+    } catch (error) {
+      console.error('Error getting JWT token:', error);
+      return null;
+    }
+  }, []);
+
   // Chat API implementation
   const chatAPI: ChatAPI = useMemo(() => ({
     messages,
@@ -153,12 +166,17 @@ export function ChatProvider({ children, userId = "default-user" }: ChatProvider
         setMessages(prev => [...prev, userMessage]);
         currentMessageRef.current = userMessage;
 
+        // Get JWT token for authentication
+        const jwtToken = await getJWTToken();
+        console.log('🔐 [CHAT PROVIDER] JWT token obtained:', jwtToken ? 'Present' : 'Missing');
+
         // Start streaming
         await startStream(
           {
             message,
             userId,
-            sessionId: activeSessionId
+            sessionId: activeSessionId,
+            jwtToken: jwtToken || undefined
           },
           handleMessageUpdate,
           handleEventUpdate,
@@ -207,7 +225,8 @@ export function ChatProvider({ children, userId = "default-user" }: ChatProvider
     handleSessionSwitch,
     handleMessageUpdate,
     handleEventUpdate,
-    handleWebsiteCountUpdate
+    handleWebsiteCountUpdate,
+    getJWTToken
   ]);
 
   // Conversations API implementation

@@ -100,12 +100,12 @@ export function useSession(): UseSessionReturn {
   const handleUserIdConfirm = useCallback((confirmedUserId: string): void => {
     setUserId(confirmedUserId);
     // Keep user ID in localStorage for convenience
-    localStorage.setItem("agent-engine-user-id", confirmedUserId);
+    localStorage.setItem("adk-user-id", confirmedUserId);
   }, []);
 
   // Load user ID from localStorage on mount (but no session persistence)
   useEffect(() => {
-    const savedUserId = localStorage.getItem("agent-engine-user-id");
+    const savedUserId = localStorage.getItem("adk-user-id");
     if (savedUserId) {
       setUserId(savedUserId);
     }

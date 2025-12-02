@@ -1,11 +1,11 @@
 /**
- * Session Service for Agent Engine
+ * Session Service for ADK FastAPI
  * 
- * This service handles session creation and management for the Agent Engine.
- * It provides an abstraction layer over the Agent Engine session API.
+ * This service handles session creation and management for the ADK FastAPI server.
+ * It provides an abstraction layer over the ADK session API.
  */
 
-import { getEndpointForPath, getAuthHeaders } from "@/lib/config";
+import { getAdkSessionsEndpoint, getAdkHeaders } from "@/lib/config";
 
 export interface SessionCreationResult {
   success: boolean;
@@ -14,7 +14,7 @@ export interface SessionCreationResult {
 }
 
 /**
- * Creates a new session for a user using the Agent Engine Sessions API
+ * Creates a new session for a user using the ADK Sessions API
  * 
  * @param userId - The user ID for the new session
  * @returns Session creation result with session ID or error
@@ -23,28 +23,24 @@ export async function createSession(userId: string): Promise<SessionCreationResu
   try {
     console.log(`🚀 [SESSION SERVICE] Creating new session for user: ${userId}`);
     
-    // Get the Agent Engine sessions endpoint
-    const sessionsUrl = getEndpointForPath("", "sessions");
+    // Get the ADK sessions endpoint
+    const sessionsUrl = getAdkSessionsEndpoint(userId);
     
-    // Get authentication headers
-    const authHeaders = await getAuthHeaders();
+    // Get standard headers (no authentication needed for local ADK)
+    const headers = getAdkHeaders();
     
-    // Create session payload
+    // Create session payload (simplified for ADK)
     const payload = {
-      user_id: userId,
-      state: null, // Use null instead of empty object to avoid scalar field error
+      state: {},
     };
     
     console.log(`📡 [SESSION SERVICE] Sending request to: ${sessionsUrl}`);
     console.log(`📤 [SESSION SERVICE] Payload:`, payload);
     
-    // Make the request to Agent Engine
+    // Make the request to ADK
     const response = await fetch(sessionsUrl, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...authHeaders,
-      },
+      headers,
       body: JSON.stringify(payload),
     });
     
@@ -72,18 +68,9 @@ export async function createSession(userId: string): Promise<SessionCreationResu
     const sessionData = await response.json();
     console.log(`✅ [SESSION SERVICE] Session created successfully:`, sessionData);
     
-    // Extract session ID from response
-    let sessionId = sessionData.id || sessionData.session_id || sessionData.sessionId;
-    
-    // If not found in standard fields, extract from the 'name' field
-    if (!sessionId && sessionData.name) {
-      // Extract session ID from name like: 'projects/.../sessions/{sessionId}/operations/...'
-      const nameMatch = sessionData.name.match(/\/sessions\/(\d+)\//);
-      if (nameMatch && nameMatch[1]) {
-        sessionId = nameMatch[1];
-        console.log(`📝 [SESSION SERVICE] Extracted session ID from name field: ${sessionId}`);
-      }
-    }
+    // Extract session ID from ADK response
+    // ADK typically returns { id: "sessionId", app_name: "...", user_id: "...", ... }
+    const sessionId = sessionData.id || sessionData.session_id || sessionData.sessionId;
     
     if (!sessionId) {
       console.error(`❌ [SESSION SERVICE] No session ID found in response:`, sessionData);

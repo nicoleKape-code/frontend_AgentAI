@@ -89,6 +89,7 @@ export interface StreamingAPIPayload {
   message: string;
   userId: string;
   sessionId: string;
+  jwtToken?: string; // Supabase JWT token for authentication
 }
 
 /**

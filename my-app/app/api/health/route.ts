@@ -1,12 +1,13 @@
 /**
  * Health Check API Route
  * 
- * This endpoint provides a simple health check for the Agent Engine frontend.
+ * This endpoint provides a simple health check for the ADK FastAPI frontend.
  * It can be used to verify that the API is operational and ready to handle requests.
  */
 
 import { NextResponse } from "next/server";
 import { CORS_HEADERS } from "@/lib/handlers/run-sse-common";
+import { getAdkEndpoint, getAdkHeaders } from "@/lib/config";
 
 /**
  * Handle OPTIONS requests for CORS preflight
@@ -25,20 +26,40 @@ export async function GET(): Promise<NextResponse> {
   console.log("💓 [HEALTH] Health check requested");
   
   try {
-    // Basic health check - verify environment variables are set
-    const hasAgentEngineEndpoint = Boolean(process.env.AGENT_ENGINE_ENDPOINT);
-    const hasServiceAccountKey = Boolean(process.env.GOOGLE_SERVICE_ACCOUNT_KEY_BASE64);
+    // Check ADK server connectivity
+    let adkHealthy = false;
+    let adkError = "";
+    
+    try {
+      const adkHealthUrl = getAdkEndpoint("health");
+      const headers = getAdkHeaders();
+      
+      console.log(`🔍 [HEALTH] Checking ADK health at: ${adkHealthUrl}`);
+      
+      const adkResponse = await fetch(adkHealthUrl, {
+        method: "GET",
+        headers,
+        signal: AbortSignal.timeout(5000), // 5 second timeout
+      });
+      
+      adkHealthy = adkResponse.ok;
+      if (!adkResponse.ok) {
+        adkError = `ADK returned ${adkResponse.status}: ${adkResponse.statusText}`;
+      }
+    } catch (error) {
+      adkError = error instanceof Error ? error.message : "Unknown error";
+    }
     
     const healthStatus = {
-      status: "healthy",
+      status: adkHealthy ? "healthy" : "unhealthy",
       timestamp: new Date().toISOString(),
       version: "1.0.0",
-      deployment: "agent_engine",
+      deployment: "adk_fastapi",
       checks: {
-        agent_engine_endpoint: hasAgentEngineEndpoint ? "configured" : "missing",
-        google_service_account: hasServiceAccountKey ? "configured" : "missing",
+        adk_server: adkHealthy ? "connected" : "failed",
+        adk_error: adkError || "none",
       },
-      ready: hasAgentEngineEndpoint && hasServiceAccountKey,
+      ready: adkHealthy,
     };
     
     const status = healthStatus.ready ? 200 : 503;
@@ -65,7 +86,7 @@ export async function GET(): Promise<NextResponse> {
         status: "unhealthy",
         timestamp: new Date().toISOString(),
         error: error instanceof Error ? error.message : "Unknown error",
-        deployment: "agent_engine",
+        deployment: "adk_fastapi",
       },
       {
         status: 503,

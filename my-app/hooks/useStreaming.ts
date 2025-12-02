@@ -15,7 +15,7 @@ export interface UseStreamingReturn {
 
   // Operations
   startStream: (
-    apiPayload: { message: string; userId: string; sessionId: string },
+    apiPayload: { message: string; userId: string; sessionId: string; jwtToken?: string },
     onMessageUpdate: (message: Message) => void,
     onEventUpdate: (messageId: string, event: ProcessedEvent) => void,
     onWebsiteCountUpdate: (count: number) => void
@@ -52,7 +52,7 @@ export function useStreaming(
   // Start streaming operation
   const startStream = useCallback(
     async (
-      apiPayload: { message: string; userId: string; sessionId: string },
+      apiPayload: { message: string; userId: string; sessionId: string; jwtToken?: string },
       onMessageUpdate: (message: Message) => void,
       onEventUpdate: (messageId: string, event: ProcessedEvent) => void,
       onWebsiteCountUpdate: (count: number) => void
@@ -76,6 +76,7 @@ export function useStreaming(
         message: apiPayload.message,
         userId: apiPayload.userId,
         sessionId: apiPayload.sessionId,
+        jwtToken: apiPayload.jwtToken,
       };
 
       // Delegate to connection manager

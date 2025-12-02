@@ -1,12 +1,12 @@
 /**
- * Run SSE API Route - Agent Engine Version
+ * Run SSE API Route - ADK FastAPI Version
  * 
- * This API route handles streaming chat requests and forwards them to Agent Engine.
- * It processes JSON fragments from Agent Engine and converts them to standard SSE format.
+ * This API route handles streaming chat requests and forwards them to ADK FastAPI.
+ * It processes streaming responses from ADK and converts them to standard SSE format.
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { handleAgentEngineStreamRequest } from "@/lib/handlers/run-sse-agent-engine-handler";
+import { handleAdkStreamRequest } from "@/lib/handlers/run-sse-adk-handler";
 import {
   parseStreamRequest,
   logStreamRequest,
@@ -29,7 +29,7 @@ export async function OPTIONS(): Promise<NextResponse> {
  * Handle POST requests for streaming chat
  */
 export async function POST(request: NextRequest): Promise<Response> {
-  console.log("🚀 [API] Run SSE endpoint called (Agent Engine version)");
+  console.log("🚀 [API] Run SSE endpoint called (ADK FastAPI version)");
   
   try {
     // Parse and validate the request
@@ -49,11 +49,11 @@ export async function POST(request: NextRequest): Promise<Response> {
       requestData.message
     );
     
-    // Forward to Agent Engine handler
-    console.log("🔀 [API] Forwarding to Agent Engine handler");
-    const response = await handleAgentEngineStreamRequest(requestData);
+    // Forward to ADK handler
+    console.log("🔀 [API] Forwarding to ADK FastAPI handler");
+    const response = await handleAdkStreamRequest(requestData);
     
-    console.log("✅ [API] Agent Engine handler completed successfully");
+    console.log("✅ [API] ADK handler completed successfully");
     return response;
     
   } catch (error) {
