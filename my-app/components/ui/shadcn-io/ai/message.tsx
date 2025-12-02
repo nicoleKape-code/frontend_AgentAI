@@ -2,8 +2,8 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from '@repo/shadcn-ui/components/ui/avatar';
-import { cn } from '@repo/shadcn-ui/lib/utils';
+} from '../../avatar';
+import { cn } from '../../../../lib/utils';
 import type { UIMessage } from 'ai';
 import type { ComponentProps, HTMLAttributes } from 'react';
 
@@ -34,7 +34,7 @@ export const MessageContent = ({
     className={cn(
       'flex flex-col gap-2 overflow-hidden rounded-lg px-4 py-3 text-foreground text-sm',
       'group-[.is-user]:bg-primary group-[.is-user]:text-primary-foreground',
-      'group-[.is-assistant]:bg-secondary group-[.is-assistant]:text-foreground',
+      'group-[.is-assistant]:bg-secondary group-[.is-assistant]:text-black',
       className
     )}
     {...props}

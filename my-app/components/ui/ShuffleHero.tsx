@@ -1,18 +1,16 @@
 "use client";
-import { ReactLenis } from "lenis/dist/lenis-react";
+import { ReactLenis } from "lenis/react";
 import {
   motion,
   useMotionTemplate,
   useMotionValue,
-  useScroll,
-  useTransform,
   animate,
 } from "framer-motion";
-import { FiArrowLeft, FiArrowRight, FiMapPin } from "react-icons/fi";
-import { useRef } from "react";
-import React, { useEffect } from "react";
+import { FiArrowLeft } from "react-icons/fi";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { createClient } from '@/lib/supabase/client';
 
 
 const COLORS_TOP = ["#13FFAA", "#1E67C6", "#CE84CF", "#DD335C"];
@@ -54,10 +52,14 @@ const Nav = () => {
   );
 };
 
-const SECTION_HEIGHT = 1500;
-
 
 const Login = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const router = useRouter();
+
     const color = useMotionValue(COLORS_TOP[0]);
     useEffect(() => {
         animate(color, COLORS_TOP, {
@@ -68,7 +70,26 @@ const Login = () => {
         });
       }, [color]);
 
-    const backgroundImage = useMotionTemplate`radial-gradient(125% 125% at 50% 0%, #020617 50%, ${color})`;
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const supabase = createClient();
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const { error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
+            if (error) throw error;
+            router.push('/Agente');
+        } catch (error: unknown) {
+            setError(error instanceof Error ? error.message : 'An error occurred');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const border = useMotionTemplate`1px solid ${color}`;
     const boxShadow = useMotionTemplate`0px 4px 24px ${color}`;
     const backgroundColor = useMotionTemplate`${color}`;
@@ -85,7 +106,7 @@ const Login = () => {
         >
           LOGIN
         </motion.h1>
-        <div className ="flex flex-col items-center space-y-6">
+        <form onSubmit={handleLogin} className="flex flex-col items-center space-y-6">
         <motion.div
             style={{ border, boxShadow }}
             className="p-[2px] rounded-full w-[450px] mx-auto"
@@ -93,6 +114,9 @@ const Login = () => {
             <input
                 type="email"
                 placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
                 className="w-full rounded-full bg-black/30 text-white px-3 py-2 backdrop-blur-sm 
                         focus:outline-none"
             />
@@ -104,22 +128,33 @@ const Login = () => {
             <input
                 type="password"
                 placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
                 className="w-full rounded-full bg-black/30 backdrop-blur-sm cursor-pointer hover:bg-black/50 transition text-white px-3 py-2  
                         focus:outline-none"
             />
         </motion.div>
-        <Link href="/Agente">
-        <motion.div
+        {error && (
+            <p className="text-red-400 text-sm w-[450px] text-center">{error}</p>
+        )}
+        <motion.button
+            type="submit"
+            disabled={isLoading}
             style={{ backgroundColor, boxShadow }}
             className="px-4 py-2 w-[450px] h-[45px] rounded-full font-medium text-white
              bg-black/30 backdrop-blur-sm cursor-pointer hover:bg-black/50 transition
-             flex items-center justify-center mt-13"
+             flex items-center justify-center mt-13 disabled:opacity-50"
             >
-                Submit
-        </motion.div>
-        </Link>
-
+                {isLoading ? 'Logging in...' : 'Submit'}
+        </motion.button>
+        <div className="text-white text-sm">
+            Don&apos;t have an account?{' '}
+            <Link href="/Signup" className="underline text-blue-400">
+                Sign up
+            </Link>
         </div>
+        </form>
       </section>
     );
   };

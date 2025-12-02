@@ -1,20 +1,20 @@
 'use client';
 
-import { Badge } from '@repo/shadcn-ui/components/ui/badge';
+import { Badge } from '../../badge';
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   type CarouselApi,
-} from '@repo/shadcn-ui/components/ui/carousel';
+} from '../../carousel';
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-} from '@repo/shadcn-ui/components/ui/hover-card';
-import { cn } from '@repo/shadcn-ui/lib/utils';
+} from '../../hover-card';
+import { cn } from '../../../../lib/utils';
 import { ArrowLeftIcon, ArrowRightIcon } from 'lucide-react';
-import { type ComponentProps, useCallback, useEffect, useState, useRef, createContext, useContext } from 'react';
+import { type ComponentProps, useCallback, useEffect, useState, createContext, useContext } from 'react';
 
 // Context to share carousel API with child components
 const CarouselApiContext = createContext<CarouselApi | undefined>(undefined);

@@ -143,3 +143,79 @@
   animation: aurora 15s ease-in-out infinite;
   filter: blur(40px);
 }
+
+/* Scrollbar Rosa/Morado Glassmorphismo */
+.scrollbar-aurora::-webkit-scrollbar {
+  width: 12px;
+}
+
+.scrollbar-aurora::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+.scrollbar-aurora::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, 
+    rgba(206, 132, 207, 0.4) 0%, 
+    rgba(221, 51, 92, 0.6) 100%);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(206, 132, 207, 0.3);
+  border-radius: 10px;
+  box-shadow: 
+    0 0 15px rgba(206, 132, 207, 0.2),
+    0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.scrollbar-aurora::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, 
+    rgba(206, 132, 207, 0.6) 0%, 
+    rgba(221, 51, 92, 0.8) 100%);
+  border: 1px solid rgba(206, 132, 207, 0.5);
+  box-shadow: 
+    0 0 25px rgba(206, 132, 207, 0.4),
+    0 8px 12px -2px rgba(0, 0, 0, 0.1);
+  transform: scale(1.02);
+}
+
+.scrollbar-aurora::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(135deg, 
+    rgba(206, 132, 207, 0.8) 0%, 
+    rgba(221, 51, 92, 1) 100%);
+  border: 1px solid rgba(206, 132, 207, 0.7);
+  box-shadow: 
+    0 0 35px rgba(206, 132, 207, 0.6),
+    inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Soporte para Firefox */
+.scrollbar-aurora {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(206, 132, 207, 0.5) transparent;
+}
+
+/* Estilos legacy para compatibilidad */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.scrollbar-track-transparent::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thumb-white\/20::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
